@@ -17,9 +17,9 @@ module.exports = {
     } catch (error) {
       console.error(error);
       if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({ content: 'An error has occurred. Balls dropped, issue reported.', flags: MessageFlags.Ephemeral });
+        await interaction.followUp({ content: '<:spike:1325681519230193735> Ballocal has dropped the ball. An error has occurred, issue reported.', flags: MessageFlags.Ephemeral });
       } else {
-        await interaction.reply({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
+        await interaction.reply({ content: '<:spike:1325681519230193735> Ballocal has dropped the ball. An error has occurred, issue reported.', flags: MessageFlags.Ephemeral });
       }
     }
   },
