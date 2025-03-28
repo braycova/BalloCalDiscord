@@ -1,6 +1,6 @@
-const { Events, ActivityType } = require('discord.js');
-const { MongoClient } = require('mongodb');
-const { mongoUri } = require('../../config.json');
+import { Events, ActivityType } from 'discord.js';
+import { MongoClient } from 'mongodb';
+import config from '../../config.json' with { type: 'json' };
 
 let statusList = [
   {
@@ -27,7 +27,7 @@ let statusList = [
 ]
 
 async function connectToDB() {
-  const client = new MongoClient(mongoUri);
+  const client = new MongoClient(config.mongoUri);
 
   try {
     await client.connect();
@@ -38,26 +38,23 @@ async function connectToDB() {
   }
 }
 
-module.exports = {
-  name: Events.ClientReady,
-  once: true,
+export const name = Events.ClientReady;
+export const once = true;
 
-  async execute(client) {
-    // client.user.setPresence({
-    //   status: "online",
-    //   activities: [{
-    //     type: ActivityType.Custom,
-    //     state: "test state test lol"
-    //   }]
-    // })
+export async function execute(client) {
+  // client.user.setPresence({
+  //   status: "online",
+  //   activities: [{
+  //     type: ActivityType.Custom,
+  //     state: "test state test lol"
+  //   }]
+  // })
+  let index = 0;
+  setInterval(() => {
+    client.user.setActivity(statusList[index]);
+    index = (index + 1) % statusList.length;
+  }, 15000);
 
-    let index = 0;
-    setInterval(() => {
-      client.user.setActivity(statusList[index]);
-      index = (index + 1) % statusList.length;
-    }, 15000)
-
-    await connectToDB()
-    console.log(`${client.user.username} is now online!`);
-  },
-};
+  await connectToDB();
+  console.log(`${client.user.username} is now online!`);
+}

@@ -1,7 +1,11 @@
-const { REST, Routes } = require('discord.js');
-const fs = require('node:fs');
-const path = require('node:path');
-const { clientId, token } = require('../config.json');
+import { REST, Routes } from 'discord.js';
+import fs from 'node:fs'; 
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import config from '../config.json' with { type: 'json' };
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const commands = [];
 const foldersPath = path.join(__dirname, 'commands');
@@ -13,7 +17,7 @@ for (const folder of commandFolders) {
 
   for (const file of commandFiles) {
     const filePath = path.join(commandsPath, file);
-    const command = require(filePath);
+    const command = await import(pathToFileURL(filePath).href);
     if ('data' in command && 'execute' in command) {
       commands.push(command.data.toJSON());
     } else {
@@ -22,14 +26,14 @@ for (const folder of commandFolders) {
   }
 }
 
-const rest = new REST().setToken(token);
+const rest = new REST().setToken(config.token);
 
 (async () => {
   try {
     console.log(`Refreshing ${commands.length} application (/) commands..`);
 
     const data = await rest.put(
-        Routes.applicationCommands(clientId),
+        Routes.applicationCommands(config.clientId),
         { body: commands },
     );
 

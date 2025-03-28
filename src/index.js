@@ -1,7 +1,11 @@
-const fs = require('node:fs');
-const path = require('node:path');
-const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
-const { token } = require('../config.json');
+import fs from 'node:fs'; 
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { Client, Collection, GatewayIntentBits } from 'discord.js'; 
+import config from '../config.json' with { type: 'json' };
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
@@ -16,12 +20,12 @@ for (const folder of commandFolders) {
 
   for (const file of commandFiles) {
     const filePath = path.join(commandsPath, file);
-    const command = require(filePath);
+    const command = await import(pathToFileURL(filePath).href);
 
     if ('data' in command && 'execute' in command) {
       client.commands.set(command.data.name, command);
     } else {
-      console.log(`[X] A command is missing a required data/execute property\n${filePath}`)
+      console.log(`[X] A command is missing a required data/execute property\n${filePath}`);
     }
   }
 }
@@ -31,7 +35,7 @@ const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'
 
 for (const file of eventFiles) {
   const filePath = path.join(eventsPath, file);
-  const event = require(filePath);
+  const event = await import(pathToFileURL(filePath).href);
   if (event.once) {
     client.once(event.name, (...args) => event.execute(...args));
   } else {
@@ -39,4 +43,4 @@ for (const file of eventFiles) {
   }
 }
 
-client.login(token);
+client.login(config.token);
